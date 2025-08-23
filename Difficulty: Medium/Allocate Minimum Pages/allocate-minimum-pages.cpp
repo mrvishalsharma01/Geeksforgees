@@ -1,82 +1,41 @@
-//{ Driver Code Starts
-// Initial function template for C++
-
-#include <bits/stdc++.h>
-using namespace std;
-
-
-// } Driver Code Ends
 class Solution {
   public:
-    bool isFeasible(vector<int>&arr, int k, int mid){
-        int req = 1, sum = 0;
+   bool is_true(vector<int> &arr, int k, int mid) {   
+        int ctr = 1;    // Students used
+        int val = 0;    // Current student's pages
         
-        for(int i=0; i<arr.size(); i++){
-            if(sum + arr[i] > mid){
-                req++;
-                sum = arr[i];
-            }
-            else{
-                sum += arr[i];
+        for (int i = 0; i < arr.size(); i++) {
+            if (val + arr[i] <= mid) {
+                val += arr[i];      // Add book to current student
+            } 
+            else {
+                ctr++;              // Need new student
+                val = arr[i];       // Start with current book
             }
         }
-        return (req<=k);
+        
+        return ctr <= k;    // Can allocate with k or fewer students
     }
+    
+    // Find minimum possible maximum pages per student
     int findPages(vector<int> &arr, int k) {
-        // code here
-        int n = arr.size();
-        if(k > n) return -1;
+        if (k > arr.size()) return -1;  // More students than books
         
-        int sum = 0, mx = 0;
-        for(int i=0; i<n; i++){
-            sum += arr[i];
-            mx = max(mx, arr[i]);
-        }
-        int low = mx, high = sum, res = 0;
-        while(low <= high){
-            int mid = (low+high)/2;
-            if(isFeasible(arr, k, mid)){
-                res = mid;
-                high = mid-1;
+        int l = *max_element(arr.begin(), arr.end());   // Min: largest book
+        int h = accumulate(arr.begin(), arr.end(), 0);  // Max: all books to one
+        
+        // Binary search on answer
+        while (h > l + 1) {
+            int mid = l + (h - l) / 2;
+            
+            if (is_true(arr, k, mid)) {
+                h = mid;    // Try smaller max
             }
-            else low = mid+1;
+            else {
+                l = mid;    // Need larger max
+            }
         }
-        return res;
+        
+        return is_true(arr, k, l) ? l : h;
     }
 };
-
-//{ Driver Code Starts.
-
-int main() {
-    int test_case;
-    cin >> test_case;
-    cin.ignore();
-    while (test_case--) {
-
-        int d;
-        vector<int> arr, brr, crr;
-        string input;
-        getline(cin, input);
-        stringstream ss(input);
-        int number;
-        while (ss >> number) {
-            arr.push_back(number);
-        }
-        getline(cin, input);
-        ss.clear();
-        ss.str(input);
-        while (ss >> number) {
-            crr.push_back(number);
-        }
-        d = crr[0];
-        int n = arr.size();
-        Solution ob;
-        int ans = ob.findPages(arr, d);
-        cout << ans << endl;
-
-        cout << "~"
-             << "\n";
-    }
-    return 0;
-}
-// } Driver Code Ends
